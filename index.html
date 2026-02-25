@@ -3,163 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecretPage | صمم هديتك</title>
+    <title>Secret Message - موقعك الخاص</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --main-color: #ff2d55; --bg-dark: #0a0a0a; --card-bg: #161616; }
-        body { margin: 0; background-color: var(--bg-dark); color: white; font-family: 'Cairo', sans-serif; overflow-x: hidden; }
+        :root { --pink: #ff2d55; --bg: #0d0d0d; --card-bg: #1a1a1a; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Cairo', sans-serif; text-align: center; }
         
-        /* تصميم الهيدر (زي الموقع بالظبط) */
-        header { padding: 40px 20px; text-align: center; background: linear-gradient(to bottom, #1a1a1a, var(--bg-dark)); }
-        header h1 { color: var(--main-color); margin: 0; font-size: 2.5rem; text-shadow: 0 0 15px rgba(255,45,85,0.5); }
-        header p { color: #888; margin-top: 10px; }
+        /* تأثير القلوب المتساقطة */
+        #hearts-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
 
-        /* شبكة التصنيفات */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; max-width: 600px; margin: auto; }
-        .category-card { background: var(--card-bg); border: 1px solid #222; border-radius: 20px; padding: 25px 15px; text-align: center; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
-        .category-card:hover { transform: translateY(-5px); border-color: var(--main-color); box-shadow: 0 5px 15px rgba(255,45,85,0.2); }
-        .category-card i { font-size: 35px; display: block; margin-bottom: 10px; }
-        .category-card span { font-weight: bold; font-size: 1.1rem; }
+        /* الهيدر */
+        .header { padding: 50px 20px; border-bottom: 2px solid #222; }
+        .header h1 { color: var(--pink); font-size: 2.8rem; margin: 0; text-shadow: 0 0 10px rgba(255,45,85,0.4); }
 
-        /* فورم التجهيز */
-        .form-container { display: none; padding: 30px 20px; max-width: 450px; margin: auto; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* الكروت */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 450px; margin: auto; }
+        .card { background: var(--card-bg); border: 1px solid #333; border-radius: 20px; padding: 25px 10px; cursor: pointer; transition: 0.3s; }
+        .card:hover { border-color: var(--pink); transform: translateY(-5px); }
+        .card i { font-size: 40px; display: block; margin-bottom: 10px; }
+
+        /* الفورم */
+        .form-section { display: none; padding: 20px; max-width: 400px; margin: auto; }
+        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #111; color: white; font-family: 'Cairo'; box-sizing: border-box; }
+        .btn { background: var(--pink); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
+
+        /* شاشة العرض (المستلم) */
+        #viewer { display: none; padding: 50px 20px; }
+        .gift-box { border: 2px solid var(--pink); border-radius: 25px; padding: 30px; background: rgba(20,20,20,0.8); backdrop-filter: blur(10px); }
+        .user-img { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--pink); margin-bottom: 15px; }
         
-        input { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; border: 1px solid #333; background: #1a1a1a; color: white; font-family: 'Cairo'; box-sizing: border-box; }
-        input:focus { outline: none; border-color: var(--main-color); }
-        .btn-send { background: var(--main-color); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 10px; }
-
-        /* شاشة عرض الرسالة (المستلم) */
-        .message-view { display: none; text-align: center; padding: 50px 20px; }
-        .heart-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-
-        /* اللينك الناتج */
-        .result-box { display: none; background: #111; padding: 20px; border-radius: 15px; border: 1px dashed var(--main-color); margin-top: 20px; }
+        /* مشغل الموسيقى (مخفي) */
+        #bg-music { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="home">
-        <header>
-            <h1>SecretPage ✨</h1>
-            <p>صمم هديتك بشكل مختلف ومميز</p>
-        </header>
+    <canvas id="hearts-canvas"></canvas>
 
+    <div id="creator-ui">
+        <div class="header">
+            <h1>SecretPage</h1>
+            <p>صمم هديتك وأضف صورك وموسيقاك</p>
+        </div>
         <div class="grid">
-            <div class="category-card" onclick="openEditor('مرتبطين', '💖')"><i>💖</i><span>مرتبطين</span></div>
-            <div class="category-card" onclick="openEditor('خطوبة', '💍')"><i>💍</i><span>مخطوبين</span></div>
-            <div class="category-card" onclick="openEditor('عيد ميلاد', '🎂')"><i>🎂</i><span>عيد ميلاد</span></div>
-            <div class="category-card" onclick="openEditor('سنة جديدة', '🎊')"><i>🎊</i><span>سنة جديدة</span></div>
-            <div class="category-card" onclick="openEditor('هدية رمضان', '🌙')"><i>🌙</i><span>هدية رمضان</span></div>
-            <div class="category-card" onclick="openEditor('تصالح حبيبك', '🥺')"><i>🥺</i><span>تصالح حبيبك</span></div>
+            <div class="card" onclick="setup('مرتبطين','💖')"><i>💖</i><span>مرتبطين</span></div>
+            <div class="card" onclick="setup('مخطوبين','💍')"><i>💍</i><span>مخطوبين</span></div>
+            <div class="card" onclick="setup('عيد ميلاد','🎂')"><i>🎂</i><span>عيد ميلاد</span></div>
+            <div class="card" onclick="setup('اعتذار','🥺')"><i>🥺</i><span>اعتذار</span></div>
+        </div>
+
+        <div id="setup-form" class="form-section">
+            <input type="text" id="name" placeholder="اسمك">
+            <input type="text" id="img-url" placeholder="رابط صورتك (اختياري)">
+            <input type="text" id="music-url" placeholder="رابط أغنية (MP3)">
+            <input type="password" id="pass" placeholder="كلمة سر لفتح الرسالة">
+            <textarea id="msg" placeholder="الرسالة السرية..." style="width:100%; height:100px; background:#111; color:white; border:1px solid #333; border-radius:12px; padding:10px; font-family:'Cairo'"></textarea>
+            <button class="btn" onclick="build()">إنشاء الرابط النهائي</button>
+            <div id="output" style="display:none; margin-top:20px; word-break:break-all; background:#222; padding:10px; border-radius:10px;"></div>
         </div>
     </div>
 
-    <div id="editor" class="form-container">
-        <button onclick="location.reload()" style="background:none; color:#888; border:none; cursor:pointer; margin-bottom:10px;">← العودة</button>
-        <h2 id="edit-title">تجهيز الهدية</h2>
-        <input type="text" id="to-name" placeholder="اسم المستلم">
-        <input type="password" id="pass" placeholder="باسورد لفتح الهدية">
-        <input type="text" id="msg" placeholder="اكتب رسالتك هنا...">
-        <button class="btn-send" onclick="generate()">إنشاء الرابط السري</button>
-        
-        <div id="result" class="result-box">
-            <p style="font-size: 0.9rem; color: #888;">انسخ الرابط وابعته للشخص:</p>
-            <input type="text" id="final-url" readonly onclick="this.select()">
-            <button class="btn-send" style="background:#28a745" onclick="copyUrl()">نسخ الرابط</button>
+    <div id="viewer">
+        <div id="lock-screen">
+            <div style="font-size: 80px;">🔒</div>
+            <h2>هذه الرسالة محمية</h2>
+            <input type="password" id="check-pass" placeholder="أدخل كلمة السر">
+            <button class="btn" onclick="openGift()">فتح المفاجأة 🎁</button>
+        </div>
+
+        <div id="gift-content" style="display:none" class="gift-box">
+            <img id="view-img" class="user-img" src="" style="display:none">
+            <h1 id="view-emoji"></h1>
+            <h2 id="view-title"></h2>
+            <p id="view-msg" style="font-size: 1.4rem; line-height: 1.6;"></p>
+            <p style="color:var(--pink)">من: <span id="view-name"></span></p>
+            <audio id="bg-music" loop></audio>
         </div>
     </div>
-
-    <div id="viewer" class="message-view">
-        <h2 id="view-header">🔒 رسالة محمية</h2>
-        <p>أدخل الباسورد لفتح هديتك من <span id="sender-display" style="color:var(--main-color)"></span></p>
-        <input type="password" id="unlock-pass" placeholder="الباسورد">
-        <button class="btn-send" onclick="checkPass()">فتح الهدية 🎁</button>
-    </div>
-
-    <canvas class="heart-bg" id="canvas"></canvas>
 
     <script>
-        let currentType = '';
-        let currentEmoji = '';
-
-        function openEditor(type, emoji) {
-            currentType = type;
-            currentEmoji = emoji;
-            document.getElementById('home').style.display = 'none';
-            document.getElementById('editor').style.display = 'block';
-            document.getElementById('edit-title').innerText = "تجهيز: " + type;
+        let selT, selE;
+        function setup(t, e) {
+            selT = t; selE = e;
+            document.querySelector('.grid').style.display = 'none';
+            document.getElementById('setup-form').style.display = 'block';
         }
 
-        function generate() {
-            const name = document.getElementById('to-name').value;
-            const password = document.getElementById('pass').value;
-            const message = document.getElementById('msg').value;
+        function build() {
+            const n = document.getElementById('name').value;
+            const i = document.getElementById('img-url').value;
+            const mu = document.getElementById('music-url').value;
+            const p = document.getElementById('pass').value;
+            const m = document.getElementById('msg').value;
 
-            if(!password || !message) return alert("أكمل البيانات أولاً!");
+            if(!p || !m) return alert("الرسالة والباسورد مطلوبين!");
 
-            const data = { n: name, p: password, m: message, t: currentType, e: currentEmoji };
-            // تشفير البيانات بـ Base64
-            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-            const link = window.location.origin + window.location.pathname + "?id=" + encoded;
-
-            document.getElementById('final-url').value = link;
-            document.getElementById('result').style.display = 'block';
+            const data = btoa(unescape(encodeURIComponent(JSON.stringify({n,i,mu,p,m,t:selT,e:selE}))));
+            const fullUrl = window.location.origin + window.location.pathname + "?id=" + data;
+            
+            document.getElementById('output').style.display = 'block';
+            document.getElementById('output').innerHTML = `انسخ الرابط:<br><input value="${fullUrl}" readonly style="width:100%">`;
         }
 
-        function copyUrl() {
-            const copyText = document.getElementById("final-url");
-            copyText.select();
-            document.execCommand("copy");
-            alert("تم نسخ الرابط بنجاح!");
-        }
-
-        // منطق المستلم
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.has('id')) {
-            document.getElementById('home').style.display = 'none';
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('id')) {
+            document.getElementById('creator-ui').style.display = 'none';
             document.getElementById('viewer').style.display = 'block';
-            const rawData = JSON.parse(decodeURIComponent(escape(atob(urlParams.get('id')))));
-            document.getElementById('sender-display').innerText = rawData.n || "شخص يحبك";
         }
 
-        function checkPass() {
-            const rawData = JSON.parse(decodeURIComponent(escape(atob(urlParams.get('id')))));
-            const inputPass = document.getElementById('unlock-pass').value;
-
-            if(inputPass === rawData.p) {
-                document.getElementById('viewer').innerHTML = `
-                    <div style="animation: fadeIn 1s">
-                        <h1 style="font-size:3rem">${rawData.e}</h1>
-                        <h2 style="color:var(--main-color)">بخصوص: ${rawData.t}</h2>
-                        <p style="font-size:1.5rem; line-height:1.8">${rawData.m}</p>
-                        <button class="btn-send" onclick="location.href=window.location.pathname">اصنع واحدة مثلها</button>
-                    </div>
-                `;
-                startHearts();
-            } else {
-                alert("الباسورد غير صحيح! جرب تاني.");
-            }
+        function openGift() {
+            const data = JSON.parse(decodeURIComponent(escape(atob(params.get('id')))));
+            if(document.getElementById('check-pass').value === data.p) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('gift-content').style.display = 'block';
+                
+                document.getElementById('view-emoji').innerText = data.e;
+                document.getElementById('view-title').innerText = data.t;
+                document.getElementById('view-msg').innerText = data.m;
+                document.getElementById('view-name').innerText = data.n;
+                
+                if(data.i) {
+                    document.getElementById('view-img').src = data.i;
+                    document.getElementById('view-img').style.display = 'inline-block';
+                }
+                
+                if(data.mu) {
+                    const audio = document.getElementById('bg-music');
+                    audio.src = data.mu;
+                    audio.play();
+                }
+                
+                initHearts();
+            } else { alert("كلمة السر خطأ!"); }
         }
 
-        // تأثير القلوب المتساقطة (زي الفيديو)
-        function startHearts() {
-            const canvas = document.getElementById('canvas');
+        function initHearts() {
+            const canvas = document.getElementById('hearts-canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             const hearts = [];
-            for(let i=0; i<50; i++) hearts.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*2+1, o: Math.random() });
+            for(let i=0; i<70; i++) hearts.push({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*3+1 });
             function draw() {
                 ctx.clearRect(0,0,canvas.width, canvas.height);
                 ctx.fillStyle = '#ff2d55';
                 hearts.forEach(h => {
-                    ctx.globalAlpha = h.o;
-                    ctx.beginPath();
-                    ctx.arc(h.x, h.y, h.s*5, 0, Math.PI*2);
-                    ctx.fill();
-                    h.y += h.s;
-                    if(h.y > canvas.height) h.y = -10;
+                    ctx.beginPath(); ctx.arc(h.x, h.y, h.s*4, 0, 6.28); ctx.fill();
+                    h.y += h.s; if(h.y > canvas.height) h.y = -20;
                 });
                 requestAnimationFrame(draw);
             }
