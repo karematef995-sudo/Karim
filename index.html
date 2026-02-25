@@ -3,116 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>رسالة سرية لكم 💖</title>
+    <title>SecretPage - صمم هديتك</title>
     <style>
-        /* تصميم الصفحة والخلفية */
-        body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
-            color: #fff;
-            text-align: center;
-        }
-
-        .container {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 40px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            max-width: 80%;
-            z-index: 10;
-        }
-
-        h1 { font-size: 2.5rem; margin-bottom: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
-        p { font-size: 1.5rem; line-height: 1.6; }
-
-        /* حركة القلوب المتساقطة */
-        .heart {
-            position: absolute;
-            top: -10%;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 20px;
-            user-select: none;
-            animation: fall linear infinite;
-        }
-
-        @keyframes fall {
-            to { transform: translateY(110vh) rotate(360deg); }
-        }
-
-        /* تنسيق خانة إنشاء الرابط */
-        .creator { margin-top: 30px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 20px; }
-        input { padding: 10px; border-radius: 10px; border: none; width: 200px; }
-        button { padding: 10px 20px; border-radius: 10px; border: none; background: #ff4b2b; color: white; cursor: pointer; font-weight: bold; }
+        :root { --primary: #ff4b2b; --dark: #1a1a1a; }
+        body { margin: 0; background: var(--dark); color: white; font-family: 'Cairo', sans-serif; text-align: center; overflow-x: hidden; }
+        .hero { padding: 50px 20px; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://source.unsplash.com/random/1600x900/?gift,love'); background-size: cover; }
+        .card-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 20px; }
+        .card { background: #2a2a2a; padding: 20px; border-radius: 15px; border: 1px solid #333; cursor: pointer; transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .card i { font-size: 30px; display: block; margin-bottom: 10px; }
+        
+        .setup-form { display: none; padding: 20px; max-width: 400px; margin: auto; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #333; color: white; }
+        button { background: var(--primary); color: white; border: none; padding: 15px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; width: 100%; }
+        
+        /* تأثير القلوب */
+        .heart { position: absolute; color: var(--primary); animation: float 3s infinite; z-index: -1; }
+        @keyframes float { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; } }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="view-mode" style="display: none;">
-            <h1 id="title">وصلتك رسالة سرية! 🎁</h1>
-            <p id="message-text"></p>
+    <div id="main-page">
+        <div class="hero">
+            <h1>SecretPage ✨</h1>
+            <p>اختار مناسبتك وصمم هديتك بشكل مختلف</p>
         </div>
 
-        <div id="create-mode">
-            <h1>اصنع رسالتك السرية 💖</h1>
-            <p>اكتب رسالتك هنا وهنعملك لينك تبعته:</p>
-            <input type="text" id="user-input" placeholder="اكتب كلام حلو...">
-            <button onclick="generateLink()">إنشاء الرابط</button>
-            <div id="result-link" style="margin-top:20px; word-break: break-all;"></div>
+        <div class="card-container">
+            <div class="card" onclick="startSetup('مرتبطين')"><i>💖</i><span>مرتبطين</span></div>
+            <div class="card" onclick="startSetup('عيد ميلاد')"><i>🎂</i><span>عيد ميلاد</span></div>
+            <div class="card" onclick="startSetup('خطوبة')"><i>💍</i><span>خطوبة</span></div>
+            <div class="card" onclick="startSetup('سنة جديدة')"><i>🎉</i><span>سنة جديدة</span></div>
         </div>
     </div>
 
-    <script>
-        // فحص الرابط: هل فيه رسالة؟
-        const urlParams = new URLSearchParams(window.location.search);
-        const secretId = urlParams.get('id');
+    <div id="setup-page" class="setup-form">
+        <h2 id="event-title">تجهيز الهدية</h2>
+        <input type="text" id="target-name" placeholder="اسم الشخص (اختياري)">
+        <input type="password" id="secret-pass" placeholder="باسورد لفتح الرسالة">
+        <input type="text" id="user-msg" placeholder="اكتب رسالتك هنا...">
+        <button onclick="generateFinalLink()">إنشاء الرابط السري</button>
+        <div id="final-result" style="margin-top:20px;"></div>
+    </div>
 
-        if (secretId) {
-            document.getElementById('create-mode').style.display = 'none';
-            document.getElementById('view-mode').style.display = 'block';
-            try {
-                // فك التشفير وعرض الرسالة
-                const decodedMsg = decodeURIComponent(atob(secretId));
-                document.getElementById('message-text').innerText = decodedMsg;
-            } catch(e) {
-                document.getElementById('message-text').innerText = "الرسالة غير صالحة!";
-            }
+    <script>
+        let selectedEvent = '';
+
+        function startSetup(event) {
+            selectedEvent = event;
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('setup-page').style.display = 'block';
+            document.getElementById('event-title').innerText = "تجهيز هدية: " + event;
         }
 
-        // وظيفة إنشاء الرابط
-        function generateLink() {
-            const text = document.getElementById('user-input').value;
-            if(!text) return alert("اكتب حاجة الأول!");
-            
-            const encoded = btoa(encodeURIComponent(text));
-            const fullLink = window.location.origin + window.location.pathname + "?id=" + encoded;
-            
-            document.getElementById('result-link').innerHTML = `
-                <p>انسخ الرابط ده وابعته:</p>
-                <input type="text" readonly value="${fullLink}" style="width:100%;">
+        function generateFinalLink() {
+            const name = document.getElementById('target-name').value;
+            const pass = document.getElementById('secret-pass').value;
+            const msg = document.getElementById('user-msg').value;
+
+            if(!pass || !msg) return alert("من فضلك اكتب الباسورد والرسالة");
+
+            // تشفير البيانات في الرابط
+            const data = { n: name, p: pass, m: msg, e: selectedEvent };
+            const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+            const link = window.location.origin + window.location.pathname + "?id=" + encoded;
+
+            document.getElementById('final-result').innerHTML = `
+                <p>تم إنشاء الرابط بنجاح! انسخه الآن:</p>
+                <input type="text" value="${link}" readonly style="background:#444;">
+                <button onclick="window.location.href='${link}'" style="background:#28a745; margin-top:10px;">تجربة الرابط</button>
             `;
         }
 
-        // إنشاء قلوب متساقطة عشوائياً
-        function createHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.innerHTML = '❤️';
-            heart.style.left = Math.random() * 100 + 'vw';
-            heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
-            heart.style.opacity = Math.random();
-            document.body.appendChild(heart);
-            setTimeout(() => heart.remove(), 5000);
+        // فحص الرابط عند الفتح
+        const params = new URLSearchParams(window.location.search);
+        if(params.has('id')) {
+            document.body.innerHTML = `
+                <div style="padding:50px;">
+                    <h2>هناك رسالة سرية بانتظارك 🔒</h2>
+                    <input type="password" id="check-pass" placeholder="أدخل الباسورد للفتح">
+                    <button onclick="unlock()">فتح الرسالة</button>
+                </div>`;
         }
-        setInterval(createHeart, 300);
+
+        function unlock() {
+            const id = new URLSearchParams(window.location.search).get('id');
+            const data = JSON.parse(decodeURIComponent(escape(atob(id))));
+            const inputPass = document.getElementById('check-pass').value;
+
+            if(inputPass === data.p) {
+                document.body.innerHTML = `
+                    <div style="padding:40px;">
+                        <h1>من: ${data.n || 'شخص مجهول'}</h1>
+                        <p style="font-size:24px;">${data.m}</p>
+                        <div style="font-size:50px;">${data.e === 'مرتبطين' ? '❤️' : '🎉'}</div>
+                        <button onclick="location.reload()">الرجوع للرئيسية</button>
+                    </div>`;
+            } else {
+                alert("الباسورد غلط!");
+            }
+        }
     </script>
 </body>
 </html>
